@@ -1,0 +1,20 @@
+Host docker01-de
+  Hostname docker01-de
+  User andreas
+
+Host hochgrat
+  Hostname 188.245.233.133
+  User root
+
+Host watzmann
+  Hostname 91.98.169.234
+  User root
+
+Host wendelstein
+  Hostname 178.104.158.165
+  User root
+
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  SetEnv TERM="xterm-256color"

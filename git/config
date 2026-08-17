@@ -1,0 +1,9 @@
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = true
+
+[user]
+	email = andreas@punz.dev
+	name = Andreas Punz
