@@ -50,3 +50,10 @@ wz() {
 mkcd() { mkdir -p "$1" && cd "$1"; }
 trash() { mv "$@" ~/.Trash/; }
 cheat() { curl -s "cht.sh/$1"; }
+# Docker
+export PATH=$PATH:~/.docker/bin
+# The following lines have been added by Docker Desktop to enable Docker CLI completions.
+fpath=(/Users/andreas/.docker/completions $fpath)
+autoload -Uz compinit
+compinit
+# End of Docker CLI completions

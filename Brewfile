@@ -21,15 +21,16 @@ brew "gh"
 
 # Dev tools
 brew "just"
+cask "claude-code"
 
 # Infra / ops
 brew "kubectl"
 
 # Containers
-cask "docker"
+cask "docker-desktop"
 
 # Apps
 cask "rectangle"
-cask "tailscale"
+cask "tailscale-app"
 cask "brave-browser"
 cask "signal"

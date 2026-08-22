@@ -1,6 +1,10 @@
-Host docker01-de
-  Hostname docker01-de
-  User andreas
+Host monitor
+  Hostname monitor
+  User admin
+
+Host monitor2
+  Hostname monitor2
+  User admin
 
 Host hochgrat
   Hostname 188.245.233.133

@@ -17,6 +17,8 @@ if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
 fi
 
 # Homebrew packages
+brew update
+brew upgrade
 brew bundle --file="$DOTFILES/Brewfile"
 
 # Symlinks
