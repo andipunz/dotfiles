@@ -1,0 +1,5 @@
+# Included by git/config for repos whose remote is under github.com/mbcomdev
+# or gitlab.com/mbcomdev. Name stays Andreas Punz (set in git/config); only
+# the email differs for work repos.
+[user]
+	email = ap@mbcom.de

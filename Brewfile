@@ -18,6 +18,10 @@ cask "visual-studio-code"
 # Git
 brew "git"
 brew "gh"
+brew "glab"
+
+# Backups
+brew "restic"
 
 # Dev tools
 brew "just"
@@ -35,3 +39,7 @@ cask "tailscale-app"
 cask "brave-browser"
 cask "signal"
 cask "claude"
+
+# Window management
+tap "nikitabobko/tap"
+cask "nikitabobko/tap/aerospace"

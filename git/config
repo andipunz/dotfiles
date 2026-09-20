@@ -7,3 +7,19 @@
 [user]
 	email = andreas@punz.dev
 	name = Andreas Punz
+
+# mbcomdev repos (work) use a different email; name stays the same, so only
+# the override file below needs to set it.
+[includeIf "hasconfig:remote.*.url:https://github.com/mbcomdev/**"]
+	path = ~/.config/git/config-mbcom
+[includeIf "hasconfig:remote.*.url:https://gitlab.com/mbcomdev/**"]
+	path = ~/.config/git/config-mbcom
+
+# Credential helpers, split by host so gh/glab's own stored tokens are reused
+# instead of falling back to a generic osxkeychain prompt.
+[credential "https://github.com"]
+	helper =
+	helper = !gh auth git-credential
+[credential "https://gitlab.com"]
+	helper =
+	helper = !glab auth git-credential

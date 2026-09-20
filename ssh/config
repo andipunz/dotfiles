@@ -9,14 +9,20 @@ Host monitor2
 Host hochgrat
   Hostname 188.245.233.133
   User root
+  IdentityFile ~/.ssh/bwb-cloud
+  IdentitiesOnly yes
 
 Host watzmann
   Hostname 91.98.169.234
   User root
+  IdentityFile ~/.ssh/bwb-cloud
+  IdentitiesOnly yes
 
 Host wendelstein
   Hostname 178.104.158.165
   User root
+  IdentityFile ~/.ssh/bwb-cloud
+  IdentitiesOnly yes
 
 Host *
   AddKeysToAgent yes

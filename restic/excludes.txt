@@ -1,0 +1,12 @@
+.git
+.Trash
+node_modules
+*.tmp
+.DS_Store
+Library/Caches
+Library/Application Support/*/Cache*
+Library/Application Support/*/CachedData
+Library/Containers/*/Data/Library/Caches
+Library/Developer
+Library/Logs
+Library/Group Containers/*/Library/Caches
