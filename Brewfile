@@ -39,7 +39,3 @@ cask "tailscale-app"
 cask "brave-browser"
 cask "signal"
 cask "claude"
-
-# Window management
-tap "nikitabobko/tap"
-cask "nikitabobko/tap/aerospace"

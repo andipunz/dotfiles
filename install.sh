@@ -37,7 +37,6 @@ link "$DOTFILES/ssh/config"      "$HOME/.ssh/config"
 link "$DOTFILES/restic/backup.sh"     "$HOME/.config/restic/backup.sh"
 link "$DOTFILES/restic/excludes.txt"  "$HOME/.config/restic/excludes.txt"
 link "$DOTFILES/restic/com.andreas.restic-backup.plist" "$HOME/Library/LaunchAgents/com.andreas.restic-backup.plist"
-link "$DOTFILES/aerospace/aerospace.toml" "$HOME/.aerospace.toml"
 
 # SSH permissions
 chmod 600 "$HOME/.ssh/config"
