@@ -17,7 +17,7 @@ This is the only "command" in the repo. It's idempotent and:
 2. Runs `brew update && brew upgrade && brew bundle --file=Brewfile`.
 3. Symlinks dotfiles into place (see mapping below) via a local `link()` helper (`ln -sfn`).
 4. `chmod 600`s the SSH config.
-5. Loads the restic backup LaunchAgent.
+5. Loads the restic backup and keyboard remap LaunchAgents.
 
 To test a change, run `./install.sh` and confirm the relevant symlink/tool behaves as expected — there's no automated test suite.
 
@@ -40,6 +40,7 @@ Files here are staged copies; `install.sh` symlinks each into its real location:
 | `restic/backup.sh` | `~/.config/restic/backup.sh` |
 | `restic/excludes.txt` | `~/.config/restic/excludes.txt` |
 | `restic/com.andreas.restic-backup.plist` | `~/Library/LaunchAgents/com.andreas.restic-backup.plist` |
+| `keyboard/com.andreas.keyboard-remap.plist` | `~/Library/LaunchAgents/com.andreas.keyboard-remap.plist` (swaps Caps Lock and Escape via `hidutil` at login) |
 
 Editing a file in this repo changes the live config after the symlink is (re-)created — but changes only take effect in already-running shells after `source ~/.zshrc` or a new shell.
 

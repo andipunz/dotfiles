@@ -17,7 +17,7 @@ brew bundle --file="$DOTFILES/Brewfile"
 
 # Python: uv-managed CPython as python/python3 in ~/.local/bin (projects pin their own via uv).
 # One minor behind the newest release, so third-party wheels are available.
-uv python install 3.14 --default
+uv python install 3.14 --default --preview-features python-install-default
 
 # Symlinks
 link() {
@@ -40,6 +40,7 @@ link "$DOTFILES/ssh/config"      "$HOME/.ssh/config"
 link "$DOTFILES/restic/backup.sh"     "$HOME/.config/restic/backup.sh"
 link "$DOTFILES/restic/excludes.txt"  "$HOME/.config/restic/excludes.txt"
 link "$DOTFILES/restic/com.andreas.restic-backup.plist" "$HOME/Library/LaunchAgents/com.andreas.restic-backup.plist"
+link "$DOTFILES/keyboard/com.andreas.keyboard-remap.plist" "$HOME/Library/LaunchAgents/com.andreas.keyboard-remap.plist"
 
 # Docker CLI (Colima): find Homebrew's compose/buildx plugins, keep registry logins in the Keychain.
 # Not symlinked, since `docker login` writes to this file.
@@ -59,5 +60,10 @@ chmod +x "$HOME/.config/restic/backup.sh"
 launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/com.andreas.restic-backup.plist" 2>/dev/null || \
   launchctl load -w "$HOME/Library/LaunchAgents/com.andreas.restic-backup.plist" 2>/dev/null || true
 echo "  loaded restic backup LaunchAgent (daily, 03:00)"
+
+# Caps Lock <-> Escape LaunchAgent (applies now and at every login)
+launchctl bootout "gui/$(id -u)/com.andreas.keyboard-remap" 2>/dev/null || true
+launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/com.andreas.keyboard-remap.plist"
+echo "  loaded keyboard remap LaunchAgent (Caps Lock <-> Escape)"
 
 echo "Done. Open a new shell or: source ~/.zshrc"
