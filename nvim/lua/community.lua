@@ -16,6 +16,7 @@ end
 local spec = {
   "AstroNvim/astrocommunity",
   { import = "astrocommunity.pack.lua" },
+  { import = "astrocommunity.colorscheme.catppuccin" },
 }
 
 local function add(enabled, ...)

@@ -1,0 +1,6 @@
+# sesh: tmux session picker (prefix f in tmux, `t` in zsh)
+
+# New sessions open nvim on the project dir, showing the file tree (like `nvim .`).
+# Use "nvim" for the AstroNvim start screen, or remove this block for a plain shell.
+[default_session]
+startup_command = "nvim ."

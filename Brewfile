@@ -21,6 +21,7 @@ brew "tealdeer"
 # Editor
 brew "neovim"
 brew "tmux"
+brew "sesh"
 
 # Languages (Go and uv manage per-project versions themselves; node@24 is keg-only, added to PATH in zshrc)
 brew "go"

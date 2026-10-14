@@ -32,6 +32,7 @@ Files here are staged copies; `install.sh` symlinks each into its real location:
 | `starship/starship.toml` | `~/.config/starship.toml` |
 | `nvim/` | `~/.config/nvim` |
 | `tmux/tmux.conf` | `~/.config/tmux/tmux.conf` |
+| `sesh/sesh.toml` | `~/.config/sesh/sesh.toml` |
 | `colima/default.yaml` | `~/.colima/_templates/default.yaml` |
 | `git/config` | `~/.config/git/config` |
 | `git/config-mbcom` | `~/.config/git/config-mbcom` |

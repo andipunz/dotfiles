@@ -88,6 +88,12 @@ wz() {
   if [[ -z "$interval" || $# -eq 0 ]]; then echo "usage: wz <seconds> '<command>'"; return 1; fi
   watch -n "$interval" "zsh -lc $(printf '%q' "setopt aliases; source ~/.zshrc >/dev/null 2>&1; $*")"
 }
+# t: project picker outside tmux (inside tmux use prefix f); attaches to or creates the session
+t() {
+  local pick
+  pick="$(sesh list --icons | fzf --no-sort --ansi --prompt '> ' --preview 'sesh preview {}' --preview-window 'right:55%')" || return
+  sesh connect "$pick"
+}
 mkcd() { mkdir -p "$1" && cd "$1"; }
 [[ $OSTYPE == darwin* ]] && trash() { mv "$@" ~/.Trash/; }
 cheat() { curl -s "cht.sh/$1"; }
