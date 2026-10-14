@@ -15,11 +15,26 @@
 [includeIf "hasconfig:remote.*.url:https://gitlab.com/mbcomdev/**"]
 	path = ~/.config/git/config-mbcom
 
+[core]
+	editor = nvim
+	pager = delta
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+[merge]
+	conflictStyle = zdiff3
+[diff]
+	colorMoved = default
+
 # Credential helpers, split by host so gh/glab's own stored tokens are reused
 # instead of falling back to a generic osxkeychain prompt.
 [credential "https://github.com"]
 	helper =
-	helper = !gh auth git-credential
+	helper = !/opt/homebrew/bin/gh auth git-credential
 [credential "https://gitlab.com"]
 	helper =
 	helper = !glab auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential

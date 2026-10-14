@@ -1,0 +1,12 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+command_timeout = 1000
+
+# Shows which cluster kubectl/k9s will talk to
+[kubernetes]
+disabled = false
+format = '[⎈ $context( \($namespace\))]($style) '
+
+# Marks shells running inside a dev container
+[container]
+format = '[⬢ $name]($style) '

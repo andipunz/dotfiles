@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Personal macOS dotfiles repo. It's a flat set of config files plus one install script — there is no build, lint, or test tooling.
+Personal macOS dotfiles repo for a terminal-first setup (Ghostty, zsh, tmux, AstroNvim). Language toolchains (Go, Python via uv, Node/TypeScript/Vue) run natively from Homebrew; containers are only for services, via Colima. It's a flat set of config files plus one install script — there is no build, lint, or test tooling.
 
 ## Setup / apply changes
 
@@ -13,9 +13,9 @@ Personal macOS dotfiles repo. It's a flat set of config files plus one install s
 ```
 
 This is the only "command" in the repo. It's idempotent and:
-1. Installs Homebrew and Oh My Zsh if missing.
+1. Installs Homebrew if missing (no Oh My Zsh: `zsh/zshrc` is plain zsh).
 2. Runs `brew update && brew upgrade && brew bundle --file=Brewfile`.
-3. Symlinks dotfiles into place (see mapping below) via a local `link()` helper (`ln -sf`).
+3. Symlinks dotfiles into place (see mapping below) via a local `link()` helper (`ln -sfn`).
 4. `chmod 600`s the SSH config.
 5. Loads the restic backup LaunchAgent.
 
@@ -28,6 +28,11 @@ Files here are staged copies; `install.sh` symlinks each into its real location:
 | Repo path | Symlinked to |
 |---|---|
 | `zsh/zshrc` | `~/.zshrc` |
+| `ghostty/config` | `~/.config/ghostty/config` |
+| `starship/starship.toml` | `~/.config/starship.toml` |
+| `nvim/` | `~/.config/nvim` |
+| `tmux/tmux.conf` | `~/.config/tmux/tmux.conf` |
+| `colima/default.yaml` | `~/.colima/_templates/default.yaml` |
 | `git/config` | `~/.config/git/config` |
 | `git/config-mbcom` | `~/.config/git/config-mbcom` |
 | `git/ignore` | `~/.config/git/ignore` |
@@ -38,7 +43,7 @@ Files here are staged copies; `install.sh` symlinks each into its real location:
 
 Editing a file in this repo changes the live config after the symlink is (re-)created — but changes only take effect in already-running shells after `source ~/.zshrc` or a new shell.
 
-`Brewfile` is read directly by `brew bundle`, not symlinked.
+`Brewfile` is read directly by `brew bundle`, not symlinked. `~/.docker/config.json` is not symlinked either (`docker login` writes to it); `install.sh` merges `cliPluginsExtraDirs` and `credsStore` into it with jq.
 
 ## Editing conventions
 
@@ -46,6 +51,12 @@ Editing a file in this repo changes the live config after the symlink is (re-)cr
 - `ssh/config` contains real hostnames/IPs for the user's personal servers; treat edits to it as sensitive infrastructure changes, not routine config.
 - `git/config` hardcodes the user's name/email — this is intentional (single-user personal machine setup), not a placeholder to templatize. Repos under `github.com/mbcomdev` or `gitlab.com/mbcomdev` (matched via `includeIf "hasconfig:remote.*.url:..."`, requires git 2.36+) get a different email from `git/config-mbcom` — same name, work address. Credential helpers are split by host (`gh auth git-credential` for github.com, `glab auth git-credential` for gitlab.com) so `git pull`/`push` reuse the tokens those CLIs already manage instead of prompting.
 - This repo is **public**. Never commit secrets (restic repository password, SSH private keys, tokens). The restic repo password lives only in the macOS Keychain (`security add-generic-password -a "$USER" -s restic-backup-de -w '<password>'`) and is read at backup time by `restic/backup.sh` — it is never written to a file in this repo.
+
+## Languages and containers
+
+- Toolchains come from the Brewfile, not a version manager: `go` (downloads newer toolchains itself when a `go.mod` asks for one), `uv` (manages Python versions per project; `install.sh` runs `uv python install 3.14 --default` so `~/.local/bin/python3` is a uv-managed Python), and `node@24` (keg-only, added to PATH in `zsh/zshrc`).
+- `nvim/lua/community.lua` enables AstroCommunity language packs only when the toolchain is on PATH; Mason installs the LSPs natively. Keymaps are AstroNvim defaults (kept identical to the work nixvim config).
+- Colima runs Docker without Docker Desktop/OrbStack. It is started on demand (`colima start` / `colima stop`), not at login. `colima/default.yaml` is the template for *new* instances only; changes to it need `colima delete && colima start`.
 
 ## Restic backup
 

@@ -10,3 +10,10 @@ Library/Containers/*/Data/Library/Caches
 Library/Developer
 Library/Logs
 Library/Group Containers/*/Library/Caches
+
+# Rebuildable dev data: Colima VM disk (images, volumes), Go modules, npm/uv caches, nvim plugins and Mason
+.colima
+go/pkg/mod
+.npm
+.cache/uv
+.local/share/nvim

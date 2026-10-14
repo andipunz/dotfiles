@@ -10,26 +10,29 @@ if ! command -v brew &>/dev/null; then
 fi
 eval "$(brew shellenv)"
 
-# Oh My Zsh
-if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-  echo "Installing Oh My Zsh..."
-  RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-fi
-
 # Homebrew packages
 brew update
 brew upgrade
 brew bundle --file="$DOTFILES/Brewfile"
 
+# Python: uv-managed CPython as python/python3 in ~/.local/bin (projects pin their own via uv).
+# One minor behind the newest release, so third-party wheels are available.
+uv python install 3.14 --default
+
 # Symlinks
 link() {
   local src="$1" dst="$2"
   mkdir -p "$(dirname "$dst")"
-  ln -sf "$src" "$dst"
+  ln -sfn "$src" "$dst"  # -n: replace an existing dir symlink (nvim) instead of linking inside it
   echo "  linked $dst"
 }
 
 link "$DOTFILES/zsh/zshrc"       "$HOME/.zshrc"
+link "$DOTFILES/ghostty/config"  "$HOME/.config/ghostty/config"
+link "$DOTFILES/starship/starship.toml" "$HOME/.config/starship.toml"
+link "$DOTFILES/nvim"            "$HOME/.config/nvim"
+link "$DOTFILES/tmux/tmux.conf"  "$HOME/.config/tmux/tmux.conf"
+link "$DOTFILES/colima/default.yaml" "$HOME/.colima/_templates/default.yaml"
 link "$DOTFILES/git/config"      "$HOME/.config/git/config"
 link "$DOTFILES/git/config-mbcom" "$HOME/.config/git/config-mbcom"
 link "$DOTFILES/git/ignore"      "$HOME/.config/git/ignore"
@@ -37,6 +40,16 @@ link "$DOTFILES/ssh/config"      "$HOME/.ssh/config"
 link "$DOTFILES/restic/backup.sh"     "$HOME/.config/restic/backup.sh"
 link "$DOTFILES/restic/excludes.txt"  "$HOME/.config/restic/excludes.txt"
 link "$DOTFILES/restic/com.andreas.restic-backup.plist" "$HOME/Library/LaunchAgents/com.andreas.restic-backup.plist"
+
+# Docker CLI (Colima): find Homebrew's compose/buildx plugins, keep registry logins in the Keychain.
+# Not symlinked, since `docker login` writes to this file.
+DOCKER_CONFIG_FILE="$HOME/.docker/config.json"
+mkdir -p "$(dirname "$DOCKER_CONFIG_FILE")"
+[[ -f $DOCKER_CONFIG_FILE ]] || echo '{}' > "$DOCKER_CONFIG_FILE"
+jq --arg dir "$(brew --prefix)/lib/docker/cli-plugins" \
+  '.cliPluginsExtraDirs = ((.cliPluginsExtraDirs // []) + [$dir] | unique) | .credsStore = "osxkeychain"' \
+  "$DOCKER_CONFIG_FILE" > "$DOCKER_CONFIG_FILE.tmp" && mv "$DOCKER_CONFIG_FILE.tmp" "$DOCKER_CONFIG_FILE"
+echo "  configured $DOCKER_CONFIG_FILE"
 
 # SSH permissions
 chmod 600 "$HOME/.ssh/config"
