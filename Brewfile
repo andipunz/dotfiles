@@ -27,6 +27,7 @@ brew "sesh"
 brew "go"
 brew "uv"
 brew "node@24"
+brew "pnpm"
 
 # Git
 brew "git"
@@ -54,6 +55,9 @@ brew "mas"
 
 # Dev tools
 brew "just"
+brew "shellcheck"
+brew "shfmt"
+brew "xh"
 cask "claude-code"
 
 # Apps

@@ -37,6 +37,7 @@ link "$DOTFILES/colima/default.yaml" "$HOME/.colima/_templates/default.yaml"
 link "$DOTFILES/git/config"      "$HOME/.config/git/config"
 link "$DOTFILES/git/config-mbcom" "$HOME/.config/git/config-mbcom"
 link "$DOTFILES/git/ignore"      "$HOME/.config/git/ignore"
+link "$DOTFILES/uv/uv.toml"      "$HOME/.config/uv/uv.toml"
 link "$DOTFILES/ssh/config"      "$HOME/.ssh/config"
 link "$DOTFILES/restic/backup.sh"     "$HOME/.config/restic/backup.sh"
 link "$DOTFILES/restic/excludes.txt"  "$HOME/.config/restic/excludes.txt"
@@ -57,6 +58,11 @@ echo "  configured $DOCKER_CONFIG_FILE"
 # since `npm login` writes tokens to ~/.npmrc. Per install: npm install --ignore-scripts=false
 PATH="$(brew --prefix)/opt/node@24/bin:$PATH" npm config set ignore-scripts true
 echo "  configured ~/.npmrc (ignore-scripts)"
+
+# pnpm (used instead of npm): skips dependency install scripts by default; also ignore package
+# versions younger than a week (in minutes), like exclude-newer in uv/uv.toml
+pnpm config set minimum-release-age 10080 --global
+echo "  configured pnpm (minimum-release-age)"
 
 # No usage data from CLIs that collect it by default
 glab config set telemetry false --global

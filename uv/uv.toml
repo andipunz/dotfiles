@@ -1,0 +1,2 @@
+# Ignore package versions younger than a week: most malicious releases are caught and pulled by then
+exclude-newer = "7 days"
