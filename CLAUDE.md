@@ -52,7 +52,7 @@ Editing a file in this repo changes the live config after the symlink is (re-)cr
 - Keep `zsh-syntax-highlighting` sourced last in `zsh/zshrc` (documented constraint in the file itself — sourcing order matters for it to work correctly).
 - `ssh/config` contains real hostnames/IPs for the user's personal servers; treat edits to it as sensitive infrastructure changes, not routine config.
 - `git/config` hardcodes the user's name/email — this is intentional (single-user personal machine setup), not a placeholder to templatize. Repos under `github.com/mbcomdev` or `gitlab.com/mbcomdev` (matched via `includeIf "hasconfig:remote.*.url:..."`, requires git 2.36+) get a different email from `git/config-mbcom` — same name, work address. Credential helpers are split by host (`gh auth git-credential` for github.com, `glab auth git-credential` for gitlab.com) so `git pull`/`push` reuse the tokens those CLIs already manage instead of prompting.
-- This repo is **public**. Never commit secrets (restic repository password, SSH private keys, tokens). The restic repo password lives only in the macOS Keychain (`security add-generic-password -a "$USER" -s restic-backup-de -w '<password>'`) and is read at backup time by `restic/backup.sh` — it is never written to a file in this repo.
+- This repo is **public**. Never commit secrets (restic repository password, SSH private keys, tokens). The restic repo password lives only in the macOS Keychain (`security add-generic-password -a "$USER" -s restic-storagebox -w '<password>'`) and is read at backup time by `restic/backup.sh` — it is never written to a file in this repo.
 
 ## Languages and containers
 
@@ -62,13 +62,14 @@ Editing a file in this repo changes the live config after the symlink is (re-)cr
 
 ## Restic backup
 
-Backs up `$HOME`, iCloud Drive, and the Photos library to `backup-de` (a ZimaBoard restic server on the owner's home LAN in Germany; server-side provisioning and ACLs live in the separate `infra-punz` repo, since that server is shared with other family members) via restic's SFTP backend, authenticated by **Tailscale SSH** — there is no SSH keypair for this to manage. `restic forget --prune` runs after every backup, keeping 7 daily / 4 weekly / 6 monthly snapshots.
+Backs up only iCloud Drive and the Photos library (code is backed up by its git remotes, the rest isn't worth keeping) daily at 03:00 to a Hetzner Storage Box (`u693061`, host alias `storagebox` in `ssh/config`, SSH port 23) via restic's SFTP backend. There is no home server; the setup is cloud-only. Restic encrypts client-side, so Hetzner only stores ciphertext. Both must be kept fully local (Finder: iCloud Drive → Keep Downloaded; Photos: Download Originals to this Mac), since restic can't read iCloud placeholders. Exit code 3 (snapshot saved, some files unreadable) raises an "incomplete" notification but still prunes. `restic forget --prune` runs after every backup, keeping 7 daily / 4 weekly / 6 monthly snapshots; on Sundays `restic check --read-data-subset=5%` verifies the repo. Failures raise a macOS notification.
 
-`backup-de` uses a dedicated `backup-andreas` account (Tailscale SSH only, no keys/passwords) that owns its whole directory, so adding another device for the same person needs no `infra-punz` changes — it just gets its own subdirectory under `/backups/usb/andreas/` the first time `restic init` runs against it. Only onboarding a new *person* touches `infra-punz` (see its README).
+Protection against a compromised laptop (which can delete the repo over SFTP) comes from the Storage Box's own automatic snapshots, managed in the Hetzner Console and not reachable via SFTP. Storage Box settings: SSH on, external reachability on, SMB/WebDAV off.
 
 One-time manual setup (not automated by `install.sh`, since these are per-machine secrets/permissions, not config):
-1. `security add-generic-password -a "$USER" -s restic-backup-de -w '<password>'` — generate and store a strong repo password in Keychain.
-2. `restic -r sftp:backup-andreas@backup-de:/backups/usb/andreas/macbook-air init` — once, to create the repository.
-3. Grant Full Disk Access (System Settings → Privacy & Security) to `restic` so it can read iCloud Drive and the Photos library — required due to TCC, can't be scripted.
+1. `ssh-keygen -t ed25519 -f ~/.ssh/storagebox-backup` (with passphrase), `ssh-add --apple-use-keychain ~/.ssh/storagebox-backup`, and add the public key to the Storage Box. `UseKeychain yes` lets the unattended job unlock it.
+2. `security add-generic-password -a "$USER" -s restic-storagebox -w '<password>'`: generate and store a strong repo password in Keychain (also keep it in a password manager; without it the backup is unrecoverable).
+3. `restic -r sftp:storagebox:restic/macbook-air init`: once, to create the repository.
+4. Grant Full Disk Access (System Settings → Privacy & Security) to `~/Applications/ResticBackup.app` so restic can read iCloud Drive and the Photos library: required due to TCC, can't be scripted. `install.sh` builds this wrapper once (osacompile, ad-hoc signed) and the LaunchAgent runs it; macOS attributes the restic child process to it. Don't rebuild it (its signature would change and the permission be dropped), and don't grant `/bin/bash` or Homebrew's restic instead: bash would give FDA to every launchd script, and restic's ad-hoc signature changes on each `brew upgrade`.
 
-Check status: `launchctl list | grep restic-backup`, logs at `~/Library/Logs/restic-backup.log`, snapshots via `restic -r sftp:backup-andreas@backup-de:/backups/usb/andreas/macbook-air snapshots` (with `RESTIC_PASSWORD` sourced from Keychain).
+Check status: `launchctl list | grep restic-backup`, logs at `~/Library/Logs/restic-backup.log`, snapshots via `restic -r sftp:storagebox:restic/macbook-air snapshots` (with `RESTIC_PASSWORD` sourced from Keychain).

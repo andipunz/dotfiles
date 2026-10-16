@@ -58,9 +58,24 @@ chmod 600 "$HOME/.ssh/config"
 chmod +x "$HOME/.config/restic/backup.sh"
 
 # Restic backup LaunchAgent
-launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/com.andreas.restic-backup.plist" 2>/dev/null || \
-  launchctl load -w "$HOME/Library/LaunchAgents/com.andreas.restic-backup.plist" 2>/dev/null || true
+launchctl bootout "gui/$(id -u)/com.andreas.restic-backup" 2>/dev/null || true
+launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/com.andreas.restic-backup.plist"
 echo "  loaded restic backup LaunchAgent (daily, 03:00)"
+
+# Restic backup app: the LaunchAgent starts this wrapper, so Full Disk Access is granted to it alone
+# (not to /bin/bash, or to Homebrew's ad-hoc signed restic, which loses the permission on every upgrade).
+# Built only once: rebuilding changes its signature and macOS would drop the permission.
+RESTIC_APP="$HOME/Applications/ResticBackup.app"
+if [[ ! -d $RESTIC_APP ]]; then
+  mkdir -p "$HOME/Applications"
+  osacompile -o "$RESTIC_APP" \
+    -e 'try' \
+    -e 'do shell script "$HOME/.config/restic/backup.sh >> $HOME/Library/Logs/restic-backup.log 2>&1"' \
+    -e 'end try'
+  plutil -replace LSUIElement -bool true "$RESTIC_APP/Contents/Info.plist"  # no Dock icon
+  codesign --force --sign - "$RESTIC_APP"
+  echo "  built $RESTIC_APP: grant it Full Disk Access in System Settings"
+fi
 
 # Caps Lock <-> Escape LaunchAgent (applies now and at every login)
 launchctl bootout "gui/$(id -u)/com.andreas.keyboard-remap" 2>/dev/null || true

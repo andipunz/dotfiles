@@ -6,9 +6,8 @@
 	<string>com.andreas.restic-backup</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/bin/bash</string>
-		<string>-lc</string>
-		<string>~/.config/restic/backup.sh</string>
+		<!-- Wrapper app built by install.sh, which holds Full Disk Access and runs ~/.config/restic/backup.sh -->
+		<string>/Users/andreas/Applications/ResticBackup.app/Contents/MacOS/applet</string>
 	</array>
 	<key>StartCalendarInterval</key>
 	<dict>

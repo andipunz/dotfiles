@@ -24,6 +24,14 @@ Host wendelstein
   IdentityFile ~/.ssh/bwb-cloud
   IdentitiesOnly yes
 
+# Hetzner Storage Box: restic backups (restic/backup.sh). Port 23 is the SSH-key port.
+Host storagebox
+  Hostname u693061.your-storagebox.de
+  User u693061
+  Port 23
+  IdentityFile ~/.ssh/storagebox-backup
+  IdentitiesOnly yes
+
 Host *
   AddKeysToAgent yes
   UseKeychain yes
