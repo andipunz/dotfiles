@@ -61,8 +61,9 @@ command -v starship >/dev/null && eval "$(starship init zsh)"
 export EDITOR=nvim
 export VISUAL=nvim
 
-# No usage analytics from Homebrew
+# No usage analytics from Homebrew or Claude Code
 export HOMEBREW_NO_ANALYTICS=1
+export DISABLE_TELEMETRY=1
 
 # Aliases
 alias c=clear
