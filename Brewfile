@@ -41,11 +41,6 @@ brew "docker"
 brew "docker-compose"
 brew "docker-buildx"
 brew "docker-credential-helper"
-brew "lazydocker"
-
-# Infra / ops
-brew "kubectl"
-brew "k9s"
 
 # System
 brew "btop"
@@ -64,7 +59,6 @@ cask "claude-code"
 # Apps
 cask "tailscale-app"
 cask "signal"
-cask "claude"
 
 # Safari ad/tracker/cookie-banner blocker, "AdGuard for Safari" in the App Store (NextDNS already filters DNS for every app)
 mas "AdGuard Mini", id: 1440147259
