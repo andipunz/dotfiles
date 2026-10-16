@@ -53,14 +53,14 @@ jq --arg dir "$(brew --prefix)/lib/docker/cli-plugins" \
   "$DOCKER_CONFIG_FILE" > "$DOCKER_CONFIG_FILE.tmp" && mv "$DOCKER_CONFIG_FILE.tmp" "$DOCKER_CONFIG_FILE"
 echo "  configured $DOCKER_CONFIG_FILE"
 
+# npm: no install scripts from dependencies (the usual supply-chain attack path). Not symlinked,
+# since `npm login` writes tokens to ~/.npmrc. Per install: npm install --ignore-scripts=false
+PATH="$(brew --prefix)/opt/node@24/bin:$PATH" npm config set ignore-scripts true
+echo "  configured ~/.npmrc (ignore-scripts)"
+
 # SSH permissions
 chmod 600 "$HOME/.ssh/config"
 chmod +x "$HOME/.config/restic/backup.sh"
-
-# Restic backup LaunchAgent
-launchctl bootout "gui/$(id -u)/com.andreas.restic-backup" 2>/dev/null || true
-launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/com.andreas.restic-backup.plist"
-echo "  loaded restic backup LaunchAgent (daily, 03:00)"
 
 # Restic backup app: the LaunchAgent starts this wrapper, so Full Disk Access is granted to it alone
 # (not to /bin/bash, or to Homebrew's ad-hoc signed restic, which loses the permission on every upgrade).
@@ -76,6 +76,11 @@ if [[ ! -d $RESTIC_APP ]]; then
   codesign --force --sign - "$RESTIC_APP"
   echo "  built $RESTIC_APP: grant it Full Disk Access in System Settings"
 fi
+
+# Restic backup LaunchAgent
+launchctl bootout "gui/$(id -u)/com.andreas.restic-backup" 2>/dev/null || true
+launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/com.andreas.restic-backup.plist"
+echo "  loaded restic backup LaunchAgent (daily, 03:00)"
 
 # Caps Lock <-> Escape LaunchAgent (applies now and at every login)
 launchctl bootout "gui/$(id -u)/com.andreas.keyboard-remap" 2>/dev/null || true

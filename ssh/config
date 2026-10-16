@@ -33,6 +33,10 @@ Host storagebox
   IdentitiesOnly yes
 
 Host *
+  # Only offer the key configured for a host, not every key in the agent
+  IdentitiesOnly yes
+  # known_hosts doesn't list where you connect in plain text (look up with ssh-keygen -F host)
+  HashKnownHosts yes
   AddKeysToAgent yes
   UseKeychain yes
   SetEnv TERM="xterm-256color"

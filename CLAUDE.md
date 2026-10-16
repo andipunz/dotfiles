@@ -45,7 +45,7 @@ Files here are staged copies; `install.sh` symlinks each into its real location:
 
 Editing a file in this repo changes the live config after the symlink is (re-)created — but changes only take effect in already-running shells after `source ~/.zshrc` or a new shell.
 
-`Brewfile` is read directly by `brew bundle`, not symlinked. `~/.docker/config.json` is not symlinked either (`docker login` writes to it); `install.sh` merges `cliPluginsExtraDirs` and `credsStore` into it with jq.
+`Brewfile` is read directly by `brew bundle`, not symlinked. `~/.docker/config.json` is not symlinked either (`docker login` writes to it); `install.sh` merges `cliPluginsExtraDirs` and `credsStore` into it with jq. `~/.npmrc` is likewise not symlinked (`npm login` writes tokens to it); `install.sh` sets `ignore-scripts=true` in it, so dependencies' install scripts don't run (opt in per install with `npm install --ignore-scripts=false`).
 
 ## Editing conventions
 
@@ -58,7 +58,7 @@ Editing a file in this repo changes the live config after the symlink is (re-)cr
 
 - Toolchains come from the Brewfile, not a version manager: `go` (downloads newer toolchains itself when a `go.mod` asks for one), `uv` (manages Python versions per project; `install.sh` runs `uv python install 3.14 --default` so `~/.local/bin/python3` is a uv-managed Python), and `node@24` (keg-only, added to PATH in `zsh/zshrc`).
 - `nvim/lua/community.lua` enables AstroCommunity language packs only when the toolchain is on PATH; Mason installs the LSPs natively. Keymaps are AstroNvim defaults (kept identical to the work nixvim config).
-- Colima runs Docker without Docker Desktop/OrbStack. It is started on demand (`colima start` / `colima stop`), not at login. `colima/default.yaml` is the template for *new* instances only; changes to it need `colima delete && colima start`.
+- Colima runs Docker without Docker Desktop/OrbStack. It is started on demand (`colima start` / `colima stop`), not at login. `colima/default.yaml` is the template for *new* instances only; changes to it need `colima delete && colima start`. It mounts only `~/git` into the VM (not all of `$HOME`), so bind mounts from elsewhere won't work.
 
 ## Restic backup
 

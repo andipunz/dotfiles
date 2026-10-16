@@ -61,11 +61,14 @@ command -v starship >/dev/null && eval "$(starship init zsh)"
 export EDITOR=nvim
 export VISUAL=nvim
 
+# No usage analytics from Homebrew
+export HOMEBREW_NO_ANALYTICS=1
+
 # Aliases
 alias c=clear
 alias cdc='cd && clear'
 alias s=sudo
-alias sv='sudo nvim'
+alias sv=sudoedit  # edits a temp copy as you, so nvim and its plugins never run as root
 alias v=nvim
 alias vim=nvim
 alias lg=lazygit
@@ -96,7 +99,7 @@ t() {
 }
 mkcd() { mkdir -p "$1" && cd "$1"; }
 [[ $OSTYPE == darwin* ]] && trash() { mv "$@" ~/.Trash/; }
-cheat() { curl -s "cht.sh/$1"; }
+cheat() { curl -s "https://cht.sh/$1"; }
 
 # zsh-autosuggestions and zsh-syntax-highlighting (Homebrew; /usr/share on Linux servers)
 for prefix in "$HOMEBREW_PREFIX/share" /usr/share; do

@@ -1,6 +1,6 @@
 # Colima defaults for new instances (linked to ~/.colima/_templates/default.yaml by install.sh).
 # Changed from upstream defaults: cpu 4, memory 8, disk 60, vz + rosetta, virtiofs mounts with inotify,
-# sshConfig off (it would write an Include into ssh/config, which is this public repo).
+# sshConfig off (it would write an Include into ssh/config, which is this public repo), mounts limited to ~/git.
 # Existing instances keep their config: apply changes with colima delete && colima start.
 
 # Number of CPUs to be allocated to the virtual machine.
@@ -262,8 +262,11 @@ sshPort: 0
 #     writable: true
 #
 # Colima default behaviour: $HOME is mounted as writable.
+# Only ~/git here, so containers can't reach ~/.ssh, the Keychain or other personal files.
 # Default: []
-mounts: []
+mounts:
+  - location: ~/git
+    writable: true
 
 # Specify a custom disk image for the virtual machine.
 # When not specified, Colima downloads an appropriate disk image from Github at

@@ -54,6 +54,9 @@ brew "yazi"
 # Backups
 brew "restic"
 
+# Mac App Store (needs the App Store signed in)
+brew "mas"
+
 # Dev tools
 brew "just"
 cask "claude-code"
@@ -64,3 +67,6 @@ cask "tailscale-app"
 cask "brave-browser"
 cask "signal"
 cask "claude"
+
+# Safari ad/tracker/cookie-banner blocker, "AdGuard for Safari" in the App Store (NextDNS already filters DNS for every app)
+mas "AdGuard Mini", id: 1440147259
