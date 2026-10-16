@@ -58,6 +58,11 @@ echo "  configured $DOCKER_CONFIG_FILE"
 PATH="$(brew --prefix)/opt/node@24/bin:$PATH" npm config set ignore-scripts true
 echo "  configured ~/.npmrc (ignore-scripts)"
 
+# No usage data from CLIs that collect it by default
+glab config set telemetry false --global
+go telemetry off
+echo "  disabled glab and Go telemetry"
+
 # SSH permissions
 chmod 600 "$HOME/.ssh/config"
 chmod +x "$HOME/.config/restic/backup.sh"

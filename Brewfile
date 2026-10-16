@@ -62,9 +62,7 @@ brew "just"
 cask "claude-code"
 
 # Apps
-cask "rectangle"
 cask "tailscale-app"
-cask "brave-browser"
 cask "signal"
 cask "claude"
 
