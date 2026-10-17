@@ -12,12 +12,12 @@ RESTIC_PASSWORD="$(security find-generic-password -a "$USER" -s restic-storagebo
 export RESTIC_REPOSITORY RESTIC_PASSWORD
 EXCLUDES="$HOME/.config/restic/excludes.txt"
 echo "=== $(date '+%F %T') backup"
-# Only iCloud Drive and Photos: code lives in git, everything else isn't worth backing up.
-# Both must be kept fully local (iCloud Drive "Keep Downloaded", Photos "Download Originals"),
-# otherwise restic only sees placeholders.
+# Only Documents (synced by iCloud, holds everything important) and Photos: code lives in git,
+# everything else isn't worth backing up. Both must be kept fully local (iCloud Drive
+# "Keep Downloaded", Photos "Download Originals"), otherwise restic only sees placeholders.
 # Exit code 3: snapshot saved, but some files were unreadable; warn, but still prune
 rc=0
-restic backup "$HOME/Library/Mobile Documents/com~apple~CloudDocs" "$HOME/Pictures/Photos Library.photoslibrary" \
+restic backup "$HOME/Documents" "$HOME/Pictures/Photos Library.photoslibrary" \
   --exclude-file="$EXCLUDES" --one-file-system || rc=$?
 if ((rc == 3)); then notify "restic backup incomplete"; elif ((rc != 0)); then notify "restic backup failed"; exit "$rc"; fi
 restic forget --prune --keep-daily 7 --keep-weekly 4 --keep-monthly 6
