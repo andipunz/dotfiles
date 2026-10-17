@@ -43,6 +43,10 @@ link "$DOTFILES/restic/backup.sh"     "$HOME/.config/restic/backup.sh"
 link "$DOTFILES/restic/excludes.txt"  "$HOME/.config/restic/excludes.txt"
 link "$DOTFILES/restic/com.andreas.backup.plist" "$HOME/Library/LaunchAgents/com.andreas.backup.plist"
 link "$DOTFILES/keyboard/com.andreas.keyboard-remap.plist" "$HOME/Library/LaunchAgents/com.andreas.keyboard-remap.plist"
+link "$DOTFILES/ablage/ablage.py"       "$HOME/.config/ablage/ablage.py"
+link "$DOTFILES/ablage/aufbewahrung.py" "$HOME/.config/ablage/aufbewahrung.py"
+link "$DOTFILES/ablage/com.andreas.ablage.plist"       "$HOME/Library/LaunchAgents/com.andreas.ablage.plist"
+link "$DOTFILES/ablage/com.andreas.aufbewahrung.plist" "$HOME/Library/LaunchAgents/com.andreas.aufbewahrung.plist"
 
 # Docker CLI (Colima): find Homebrew's compose/buildx plugins, keep registry logins in the Keychain.
 # Not symlinked, since `docker login` writes to this file.
@@ -87,6 +91,38 @@ if [[ ! -d $RESTIC_APP ]]; then
   codesign --force --sign - "$RESTIC_APP"
   echo "  built $RESTIC_APP: grant it Full Disk Access in System Settings"
 fi
+
+# Document filing (ablage/): OCR helper, rebuilt when its source changes (it runs as a child of the
+# wrapper app, so rebuilding it doesn't affect any permission)
+ABLAGE_EXTRACT="$HOME/.config/ablage/extract"
+if [[ ! -x $ABLAGE_EXTRACT || $DOTFILES/ablage/extract.swift -nt $ABLAGE_EXTRACT ]]; then
+  swiftc -O "$DOTFILES/ablage/extract.swift" -o "$ABLAGE_EXTRACT"
+  echo "  built $ABLAGE_EXTRACT"
+fi
+mkdir -p "$HOME/Documents/_Eingang"
+
+# Document filing app: like ResticBackup.app, holds Full Disk Access for ~/Documents. The LaunchAgent
+# sets ABLAGE_JOB (ablage or aufbewahrung) to pick the script. Built only once (see restic below).
+ABLAGE_APP="$HOME/Applications/Dokumentenablage.app"
+if [[ ! -d $ABLAGE_APP ]]; then
+  mkdir -p "$HOME/Applications"
+  osacompile -o "$ABLAGE_APP" \
+    -e 'set job to system attribute "ABLAGE_JOB"' \
+    -e 'if job is not in {"ablage", "aufbewahrung"} then set job to "ablage"' \
+    -e 'try' \
+    -e 'do shell script "/usr/bin/python3 $HOME/.config/ablage/" & job & ".py >> $HOME/Library/Logs/ablage.log 2>&1"' \
+    -e 'end try'
+  plutil -replace LSUIElement -bool true "$ABLAGE_APP/Contents/Info.plist"  # no Dock icon
+  codesign --force --sign - "$ABLAGE_APP"
+  echo "  built $ABLAGE_APP: grant it Full Disk Access in System Settings"
+fi
+
+# Document filing LaunchAgents (inbox watcher, yearly retention report)
+for agent in com.andreas.ablage com.andreas.aufbewahrung; do
+  launchctl bootout "gui/$(id -u)/$agent" 2>/dev/null || true
+  launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/$agent.plist"
+done
+echo "  loaded document filing LaunchAgents (~/Documents/_Eingang, retention report on 2 January)"
 
 # Restic backup LaunchAgent
 launchctl bootout "gui/$(id -u)/com.andreas.backup" 2>/dev/null || true

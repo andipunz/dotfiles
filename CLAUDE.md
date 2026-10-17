@@ -17,7 +17,8 @@ This is the only "command" in the repo. It's idempotent and:
 2. Runs `brew update && brew upgrade && brew bundle --file=Brewfile`.
 3. Symlinks dotfiles into place (see mapping below) via a local `link()` helper (`ln -sfn`).
 4. `chmod 600`s the SSH config.
-5. Loads the restic backup and keyboard remap LaunchAgents.
+5. Builds the document filing OCR helper and wrapper app (see "Document filing").
+6. Loads the document filing, restic backup and keyboard remap LaunchAgents.
 
 To test a change, run `./install.sh` and confirm the relevant symlink/tool behaves as expected — there's no automated test suite.
 
@@ -43,6 +44,8 @@ Files here are staged copies; `install.sh` symlinks each into its real location:
 | `restic/excludes.txt` | `~/.config/restic/excludes.txt` |
 | `restic/com.andreas.backup.plist` | `~/Library/LaunchAgents/com.andreas.backup.plist` |
 | `keyboard/com.andreas.keyboard-remap.plist` | `~/Library/LaunchAgents/com.andreas.keyboard-remap.plist` (swaps Caps Lock and Escape via `hidutil` at login) |
+| `ablage/ablage.py`, `ablage/aufbewahrung.py` | `~/.config/ablage/` |
+| `ablage/com.andreas.ablage.plist`, `ablage/com.andreas.aufbewahrung.plist` | `~/Library/LaunchAgents/` |
 
 Editing a file in this repo changes the live config after the symlink is (re-)created — but changes only take effect in already-running shells after `source ~/.zshrc` or a new shell.
 
@@ -61,6 +64,18 @@ Editing a file in this repo changes the live config after the symlink is (re-)cr
 - Supply-chain cooldown: uv ignores packages published in the last 7 days (`exclude-newer` in `uv/uv.toml`), and so does pnpm (`minimum-release-age`, set by `install.sh` in its global config).
 - `nvim/lua/community.lua` enables AstroCommunity language packs only when the toolchain is on PATH; Mason installs the LSPs natively. Keymaps are AstroNvim defaults (kept identical to the work nixvim config).
 - Colima runs Docker without Docker Desktop/OrbStack. It is started on demand (`colima start` / `colima stop`), not at login. `colima/default.yaml` is the template for *new* instances only; changes to it need `colima delete && colima start`. It mounts only `~/git` into the VM (not all of `$HOME`), so bind mounts from elsewhere won't work.
+
+## Document filing (ablage)
+
+Files dropped into `~/Documents/_Eingang` are renamed and filed automatically. `ablage/ablage.py` (plain `/usr/bin/python3`, stdlib only, so it doesn't depend on uv) reads the text (PDF text, Vision OCR for scans and photos via `~/.config/ablage/extract`, built by `install.sh` from `ablage/extract.swift`), moves exact duplicates to `_Papierkorb`, applies fixed rules (DKB statements, payslips, Lohnsteuerbescheinigungen, DRV Renteninformation) and asks `claude -p` (no tools, JSON schema output) for everything else. Results are validated against the naming scheme before moving; anything below 75 % confidence, off-scheme, or failing goes to `_Pruefen`. Nothing is overwritten or deleted. `aufbewahrung.py` writes a yearly retention report (2 January) to `_Pruefen`; it never deletes.
+
+Naming scheme (enforced by regex in `ablage.py`): folders `NN_Bereich` at the top, `Wort-Wort` below, years `YYYY`; files `YYYY-MM-DD_Typ_Absender_Detail.ext`, no spaces, umlauts, or special characters.
+
+- Personal data stays out of this public repo: owner, employer names (for the payslip rule), `use_claude` and `model` are read from `~/Documents/.ablage.json`, which iCloud syncs to every Mac. Without it the scripts still run, with no employer rule and a generic prompt.
+- `com.andreas.ablage` runs on changes to `_Eingang` (`WatchPaths`) and every 30 minutes; `com.andreas.aufbewahrung` yearly. Both start `~/Applications/Dokumentenablage.app` (osacompile wrapper, same reasoning as ResticBackup.app below), which picks the script from the `ABLAGE_JOB` environment variable.
+- Undo log: `~/Library/Application Support/Dokumentenablage/ablage-log.csv`; `python3 ~/.config/ablage/ablage.py --undo` puts the last filed document back into `_Eingang`. Job output: `~/Library/Logs/ablage.log`.
+
+One-time manual setup on a new Mac: grant Full Disk Access to `~/Applications/Dokumentenablage.app` (don't rebuild it afterwards, the permission is tied to its signature), and log in to Claude Code once (`claude`) so the headless calls are authenticated.
 
 ## Restic backup
 
