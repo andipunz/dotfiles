@@ -41,7 +41,7 @@ link "$DOTFILES/uv/uv.toml"      "$HOME/.config/uv/uv.toml"
 link "$DOTFILES/ssh/config"      "$HOME/.ssh/config"
 link "$DOTFILES/restic/backup.sh"     "$HOME/.config/restic/backup.sh"
 link "$DOTFILES/restic/excludes.txt"  "$HOME/.config/restic/excludes.txt"
-link "$DOTFILES/restic/com.andreas.restic-backup.plist" "$HOME/Library/LaunchAgents/com.andreas.restic-backup.plist"
+link "$DOTFILES/restic/com.andreas.backup.plist" "$HOME/Library/LaunchAgents/com.andreas.backup.plist"
 link "$DOTFILES/keyboard/com.andreas.keyboard-remap.plist" "$HOME/Library/LaunchAgents/com.andreas.keyboard-remap.plist"
 
 # Docker CLI (Colima): find Homebrew's compose/buildx plugins, keep registry logins in the Keychain.
@@ -89,8 +89,8 @@ if [[ ! -d $RESTIC_APP ]]; then
 fi
 
 # Restic backup LaunchAgent
-launchctl bootout "gui/$(id -u)/com.andreas.restic-backup" 2>/dev/null || true
-launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/com.andreas.restic-backup.plist"
+launchctl bootout "gui/$(id -u)/com.andreas.backup" 2>/dev/null || true
+launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/com.andreas.backup.plist"
 echo "  loaded restic backup LaunchAgent (daily, 03:00)"
 
 # Caps Lock <-> Escape LaunchAgent (applies now and at every login)

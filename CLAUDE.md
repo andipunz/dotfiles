@@ -41,7 +41,7 @@ Files here are staged copies; `install.sh` symlinks each into its real location:
 | `ssh/config` | `~/.ssh/config` |
 | `restic/backup.sh` | `~/.config/restic/backup.sh` |
 | `restic/excludes.txt` | `~/.config/restic/excludes.txt` |
-| `restic/com.andreas.restic-backup.plist` | `~/Library/LaunchAgents/com.andreas.restic-backup.plist` |
+| `restic/com.andreas.backup.plist` | `~/Library/LaunchAgents/com.andreas.backup.plist` |
 | `keyboard/com.andreas.keyboard-remap.plist` | `~/Library/LaunchAgents/com.andreas.keyboard-remap.plist` (swaps Caps Lock and Escape via `hidutil` at login) |
 
 Editing a file in this repo changes the live config after the symlink is (re-)created — but changes only take effect in already-running shells after `source ~/.zshrc` or a new shell.
@@ -74,4 +74,4 @@ One-time manual setup (not automated by `install.sh`, since these are per-machin
 3. `restic -r sftp:storagebox:restic/macbook-air init`: once, to create the repository.
 4. Grant Full Disk Access (System Settings → Privacy & Security) to `~/Applications/ResticBackup.app` so restic can read iCloud Drive and the Photos library: required due to TCC, can't be scripted. `install.sh` builds this wrapper once (osacompile, ad-hoc signed) and the LaunchAgent runs it; macOS attributes the restic child process to it. Don't rebuild it (its signature would change and the permission be dropped), and don't grant `/bin/bash` or Homebrew's restic instead: bash would give FDA to every launchd script, and restic's ad-hoc signature changes on each `brew upgrade`.
 
-Check status: `launchctl list | grep restic-backup`, logs at `~/Library/Logs/restic-backup.log`, snapshots via `restic -r sftp:storagebox:restic/macbook-air snapshots` (with `RESTIC_PASSWORD` sourced from Keychain).
+Check status: `launchctl print gui/$(id -u)/com.andreas.backup`, logs at `~/Library/Logs/restic-backup.log`, snapshots via `restic -r sftp:storagebox:restic/macbook-air snapshots` (with `RESTIC_PASSWORD` sourced from Keychain).

@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-	<string>com.andreas.restic-backup</string>
+	<string>com.andreas.backup</string>
 	<key>ProgramArguments</key>
 	<array>
 		<!-- Wrapper app built by install.sh, which holds Full Disk Access and runs ~/.config/restic/backup.sh -->
