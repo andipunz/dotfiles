@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.andreas.backup</string>
+	<key>ProgramArguments</key>
+	<array>
+		<!-- Wrapper app built by install.sh, which holds Full Disk Access and runs ~/.config/restic/backup.sh -->
+		<string>/Users/andreas/Applications/ResticBackup.app/Contents/MacOS/applet</string>
+	</array>
+	<!-- Hourly, and at login: backup.sh backs up at most once a day and only while the Mac is fully
+	     awake (a fixed 03:00 lands in a DarkWake, which macOS ends within seconds on battery) -->
+	<key>StartInterval</key>
+	<integer>3600</integer>
+	<key>StandardOutPath</key>
+	<string>/Users/andreas/Library/Logs/restic-backup.log</string>
+	<key>StandardErrorPath</key>
+	<string>/Users/andreas/Library/Logs/restic-backup.log</string>
+	<key>RunAtLoad</key>
+	<true/>
+</dict>
+</plist>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.andreas.aufbewahrung</string>
+	<key>ProgramArguments</key>
+	<array>
+		<!-- Same wrapper app as com.andreas.ablage (needs Full Disk Access to read ~/Documents) -->
+		<string>/Users/andreas/Applications/Dokumentenablage.app/Contents/MacOS/applet</string>
+	</array>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>ABLAGE_JOB</key>
+		<string>aufbewahrung</string>
+	</dict>
+	<!-- Yearly retention report, 2 January 10:00 -->
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Month</key>
+		<integer>1</integer>
+		<key>Day</key>
+		<integer>2</integer>
+		<key>Hour</key>
+		<integer>10</integer>
+	</dict>
+	<key>StandardOutPath</key>
+	<string>/Users/andreas/Library/Logs/ablage.log</string>
+	<key>StandardErrorPath</key>
+	<string>/Users/andreas/Library/Logs/ablage.log</string>
+</dict>
+</plist>

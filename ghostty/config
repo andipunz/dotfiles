@@ -1,0 +1,21 @@
+# Ghostty (see `ghostty +show-config --default --docs`)
+# Only Cmd-based shortcuts here, so every Ctrl key stays free for nvim and tmux.
+
+font-family = MesloLGS Nerd Font Mono
+font-size = 14
+theme = dark:Catppuccin Mocha,light:Catppuccin Latte
+
+window-padding-x = 8
+window-padding-y = 4
+window-save-state = always
+macos-titlebar-style = tabs
+
+# Option stays a normal macOS Option key (needed for @ | \ { } on German layouts)
+macos-option-as-alt = false
+
+# OSC52 copy from nvim/tmux inside containers lands in the macOS clipboard
+clipboard-write = allow
+copy-on-select = clipboard
+
+# Make ssh work on servers without Ghostty's terminfo
+shell-integration-features = ssh-env,ssh-terminfo

@@ -1,0 +1,4 @@
+# Only what differs from atuin's defaults (the full commented default config: atuin default-config)
+
+# Enter runs the selected command right away (Tab puts it on the command line to edit)
+enter_accept = true

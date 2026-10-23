@@ -1,0 +1,80 @@
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = true
+[rebase]
+	autoStash = true
+	updateRefs = true  # move stacked branches along when rebasing
+[fetch]
+	prune = true
+[push]
+	autoSetupRemote = true
+[rerere]
+	enabled = true  # reuse recorded conflict resolutions
+[branch]
+	sort = -committerdate
+[help]
+	autocorrect = prompt
+
+# GitHub's no-reply address by default, so commits (often public) never show the real email
+[user]
+	email = 75120851+andipunz@users.noreply.github.com
+	name = Andreas Punz
+[commit]
+	verbose = true  # show the diff while writing the message
+
+# mbcomdev repos (work) use a different email; name stays the same, so only
+# the override file below needs to set it.
+[includeIf "hasconfig:remote.*.url:https://github.com/mbcomdev/**"]
+	path = ~/.config/git/config-mbcom
+[includeIf "hasconfig:remote.*.url:https://gitlab.com/mbcomdev/**"]
+	path = ~/.config/git/config-mbcom
+# insteadOf (below) only rewrites at fetch/push; a remote stored as an SSH URL
+# still has to match here.
+[includeIf "hasconfig:remote.*.url:git@github.com:mbcomdev/**"]
+	path = ~/.config/git/config-mbcom
+[includeIf "hasconfig:remote.*.url:git@gitlab.com:mbcomdev/**"]
+	path = ~/.config/git/config-mbcom
+
+# HTTPS only, authenticated by gh/glab (credential helpers below): pasted SSH
+# URLs, submodules and `go get` are rewritten instead of needing an SSH key.
+[url "https://github.com/"]
+	insteadOf = git@github.com:
+	insteadOf = ssh://git@github.com/
+[url "https://gitlab.com/"]
+	insteadOf = git@gitlab.com:
+	insteadOf = ssh://git@gitlab.com/
+
+[core]
+	editor = nvim
+	pager = delta
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+[transfer]
+	fsckObjects = true  # reject corrupt or malformed objects on fetch/push
+[merge]
+	conflictStyle = zdiff3
+[diff]
+	colorMoved = default
+	algorithm = histogram
+
+# Secret scan (gitleaks) before every commit in every repo. Config hooks run before the
+# repo's own .git/hooks/pre-commit, which keeps working. Skip once: git commit --no-verify
+[hook "gitleaks"]
+	event = pre-commit
+	command = "command -v gitleaks >/dev/null || { echo 'gitleaks not installed, secret scan skipped' >&2; exit 0; }; gitleaks git --pre-commit --staged --redact --no-banner"
+
+# Credential helpers, split by host so gh/glab's own stored tokens are reused
+# instead of falling back to a generic osxkeychain prompt.
+[credential "https://github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gitlab.com"]
+	helper =
+	helper = !glab auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential

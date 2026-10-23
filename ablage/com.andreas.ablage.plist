@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.andreas.ablage</string>
+	<key>ProgramArguments</key>
+	<array>
+		<!-- Wrapper app built by install.sh, which holds Full Disk Access and runs ~/.config/ablage/$ABLAGE_JOB.py -->
+		<string>/Users/andreas/Applications/Dokumentenablage.app/Contents/MacOS/applet</string>
+	</array>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>ABLAGE_JOB</key>
+		<string>ablage</string>
+	</dict>
+	<!-- Runs whenever something lands in the inbox, and every 10 minutes (fetches mail, fallback) -->
+	<key>WatchPaths</key>
+	<array>
+		<string>/Users/andreas/Documents/_Eingang</string>
+	</array>
+	<key>StartInterval</key>
+	<integer>600</integer>
+	<key>ThrottleInterval</key>
+	<integer>10</integer>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardOutPath</key>
+	<string>/Users/andreas/Library/Logs/ablage.log</string>
+	<key>StandardErrorPath</key>
+	<string>/Users/andreas/Library/Logs/ablage.log</string>
+</dict>
+</plist>

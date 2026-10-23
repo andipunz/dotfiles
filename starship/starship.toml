@@ -1,0 +1,13 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+command_timeout = 1000
+
+# One-line prompt: no empty line before it, ❯ on the same line as path and git info
+add_newline = false
+
+[line_break]
+disabled = true
+
+# Marks shells running inside a dev container
+[container]
+format = '[⬢ $name]($style) '

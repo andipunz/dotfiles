@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Swaps Caps Lock and Escape on all keyboards. hidutil mappings don't survive a
+  reboot, so this LaunchAgent re-applies them at every login.
+  Key codes: 0x700000039 (30064771129) = Caps Lock, 0x700000029 (30064771113) = Escape.
+  Undo until next login: hidutil property --set '{"UserKeyMapping":[]}'
+-->
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.andreas.keyboard-remap</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/bin/hidutil</string>
+		<string>property</string>
+		<string>--set</string>
+		<string>{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":30064771129,"HIDKeyboardModifierMappingDst":30064771113},{"HIDKeyboardModifierMappingSrc":30064771113,"HIDKeyboardModifierMappingDst":30064771129}]}</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+</dict>
+</plist>

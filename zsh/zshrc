@@ -1,0 +1,122 @@
+# Homebrew (host)
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+# Languages: node@24 is keg-only; `go install` and `uv tool install` put binaries in ~/go/bin and ~/.local/bin
+path=("$HOME/.local/bin" "$HOMEBREW_PREFIX/opt/node@24/bin" $path "$HOME/go/bin")
+typeset -U path
+
+# Options
+setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT INTERACTIVE_COMMENTS
+
+# History
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE="$HOME/.zsh_history"
+setopt HIST_FCNTL_LOCK HIST_IGNORE_DUPS HIST_IGNORE_SPACE SHARE_HISTORY
+setopt NO_APPEND_HISTORY NO_EXTENDED_HISTORY
+
+# Completion
+[[ -n $HOMEBREW_PREFIX ]] && fpath=("$HOMEBREW_PREFIX/share/zsh/site-functions" $fpath)
+autoload -Uz compinit && compinit
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+
+# Key bindings (emacs mode, like Oh My Zsh)
+bindkey -e
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search edit-command-line
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+zle -N edit-command-line
+bindkey '^[[A' up-line-or-beginning-search
+bindkey '^[[B' down-line-or-beginning-search
+bindkey '^X^E' edit-command-line
+
+# Esc Esc: toggle sudo in front of the current (or previous) command
+sudo-command-line() {
+  [[ -z $BUFFER ]] && LBUFFER="$(fc -ln -1)"
+  if [[ $BUFFER == sudo\ * ]]; then LBUFFER="${LBUFFER#sudo }"; else LBUFFER="sudo $LBUFFER"; fi
+}
+zle -N sudo-command-line
+bindkey '\e\e' sudo-command-line
+
+# Tools
+if command -v fzf >/dev/null; then
+  source <(fzf --zsh)
+  export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+  export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:300 {}'"
+  export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
+fi
+command -v atuin >/dev/null && eval "$(atuin init zsh --disable-up-arrow)"
+command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
+command -v direnv >/dev/null && eval "$(direnv hook zsh)"
+command -v starship >/dev/null && eval "$(starship init zsh)"
+
+# Editor
+export EDITOR=nvim
+export VISUAL=nvim
+
+# No usage analytics from Homebrew; Claude Code: no telemetry, error reports or update checks
+export HOMEBREW_NO_ANALYTICS=1
+export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+
+if [[ $OSTYPE == darwin* ]]; then
+  # A backup job that stops running sends no notification (restic/backup.sh records each snapshot)
+  old=(~/Library/Application\ Support/ResticBackup/last-snapshot(N.mh+72))
+  (( $#old )) && print -P "%F{red}restic: no backup for over 3 days, see ~/Library/Logs/restic-backup.log%f"
+  unset old
+fi
+
+# Aliases
+alias c=clear
+alias cdc='cd && clear'
+alias s=sudo
+alias sv=sudoedit  # edits a temp copy as you, so nvim and its plugins never run as root
+alias v=nvim
+alias vim=nvim
+alias lg=lazygit
+alias ..='cd ..'
+alias ...='cd ../..'
+if command -v eza >/dev/null; then
+  alias ls='eza --group-directories-first'
+  alias ll='eza -l --git --group-directories-first'
+  alias la='eza -la --git --group-directories-first'
+  alias lt='eza --tree --level=2'
+else
+  alias ll='ls -lh'
+  alias la='ls -lAh'
+fi
+command -v bat >/dev/null && alias cat='bat --paging=never'
+
+# Functions
+wz() {
+  local interval="$1"; shift
+  if [[ -z "$interval" || $# -eq 0 ]]; then echo "usage: wz <seconds> '<command>'"; return 1; fi
+  watch -n "$interval" "zsh -lc $(printf '%q' "setopt aliases; source ~/.zshrc >/dev/null 2>&1; $*")"
+}
+# t: project picker outside tmux (inside tmux use prefix f); attaches to or creates the session
+t() {
+  local pick
+  pick="$(sesh list --icons | fzf --no-sort --ansi --prompt '> ' --preview 'sesh preview {}' --preview-window 'right:55%')" || return
+  sesh connect "$pick"
+}
+mkcd() { mkdir -p "$1" && cd "$1"; }
+
+# zsh-autosuggestions and zsh-syntax-highlighting (Homebrew; /usr/share on Linux servers)
+for prefix in "$HOMEBREW_PREFIX/share" /usr/share; do
+  [[ -r $prefix/zsh-autosuggestions/zsh-autosuggestions.zsh ]] || continue
+  source "$prefix/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  ZSH_AUTOSUGGEST_STRATEGY=(history)
+  break
+done
+# must be last
+for prefix in "$HOMEBREW_PREFIX/share" /usr/share; do
+  [[ -r $prefix/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] || continue
+  source "$prefix/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+  break
+done

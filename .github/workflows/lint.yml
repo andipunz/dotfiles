@@ -1,0 +1,26 @@
+# shellcheck (warnings and errors; the info-level SC2016 flags the deliberately quoted commands in
+# macos/system.sh) on the scripts, and gitleaks on the pushed commits (the repo is public).
+# Actions are pinned to commit SHAs, not tags, so a moved tag can't change what runs.
+name: lint
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: shellcheck --severity=warning install.sh check.sh macos/*.sh restic/backup.sh
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_VERSION: 8.30.1  # same as Homebrew's (the action's default is older)

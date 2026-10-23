@@ -1,0 +1,5 @@
+.DS_Store
+*.tmp
+# Rebuildable, in case a project ends up in iCloud Drive
+.git
+node_modules
